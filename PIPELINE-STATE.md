@@ -1,8 +1,8 @@
 # PIPELINE-STATE — dsh-deepseek-fetch
 
 - mode: dev（开发环）
-- 当前阶段：**05 检查（第五批 FR-15）· 已完成（SHIPPABLE v0.7）· 待用户最终验收**
-- 最后刷新：2026-10-24 00:55 (Asia/Shanghai)
+- 当前阶段：**全部闭环 + 已迁入生态**（P0~P5 五轮均经用户验收；GitHub 仓已建、宿主已改指克隆）
+- 最后刷新：2026-10-24 01:30 (Asia/Shanghai)
 
 ## 轮次进度
 
@@ -221,7 +221,19 @@ P2-7(b)(c)(d) 断言覆盖缺口、P2-8 每屏全量扫描成本、P2-10 真实"
 
 build 0 · tsc 0 · **verify 23 项 PASS** · 准入 1/1 · `src/index.ts` **2995 行** · version **0.5.0** · `_bak` 0 · `.zcode` 不存在 · 临时 profile 0。
 
-## 下一步待确认事项
+## 迁移收口（T-34~T-37 · 方案 A）
 
-- 等待用户对本轮（`SHIPPABLE.md` v0.7）做**最终验收**；
-- 确认后进入**闭环收尾**，并在收尾阶段执行 **T-34~T-37 迁移方案 A**（建 GitHub 仓 → 克隆 `D:\dsh-sync\packages\dsh-deepseek-fetch` → 宿主 link 改指 → 迁移后回归）。
+| 项 | 值 |
+|---|---|
+| GitHub | **yangyizhu8/dsh-deepseek-fetch**（PUBLIC）；HEAD `05d1340` == origin/main |
+| 本机落位 | `D:\dsh-sync\packages\dsh-deepseek-fetch` |
+| 宿主 link | `link:D:/dsh-sync/packages/dsh-deepseek-fetch/bundle`（junction 已重建） |
+| 加载源证明 | 反向探针：移走克隆 lib → 重载失败（旧 lib 完好）→ 运行的是克隆 ✓ |
+| 克隆门禁 | build 0 / verify **23 项 PASS** / 准入 1/1 / git 干净 |
+| 回退点 | `package.json.bak-link-repoint` + 旧工作副本（verify 仍 PASS） |
+| 未做 | 生产宿主 uninject（会写 disabled patch，风险高）；以「仅 1 条 entry + 只 ctx.effect 注册」等价证据替代 |
+
+## 下一步
+
+- 无（全部闭环）。后续迭代：改代码走**工作副本 → 提交 → 克隆 `git pull` → `build.sh`**；新需求走流水线阶段01。
+- **P6 候选**（登记）：① 浮层剥离的扫描上限/降频（P2-8 成本）② 断言对"删除后脱挂"的模拟（P2-7b）③ 真实"同内容帧"样本采集以便实测去重命中率（P2-10）。

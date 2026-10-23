@@ -614,3 +614,25 @@ deepseek_fetch({ url: "https://…", clean: false })          # 原文保真
 依据：结构合规（loader id `deepseek-fetch` 唯一、工具名 `deepseek_fetch` 无冲突、`dsh.bundle.patch` 指向真实文件）；构建/类型全绿；**verify 23 项全 PASS**；准入 1/1；宿主内 `[active]` 且真实调用三形态成功；**真实 kdocs `overlays_stripped=4` 且正文 2404 字符未削弱、人眼确认浮层消失**；无浮层页面 `overlays_stripped=0` 不误剥；**独立审查 1×P1 + 9×P2 已修并复验**（含新增 6 组断言与"剥在截之前"的可证伪证明）；数量红线（参数 10 / 错误码 11 / Config 18 / verify 23 / 新依赖 0）；P0/P1 回归通过；`.zcode` 已删、`sk-*` 0 命中、`_bak` 0、临时 profile 0。
 
 **必须随标记阅读的限制**：§11.3 已闭合缺陷、§11.4 登记不修项（P2-7 部分 / P2-8 扫描成本 / P2-10 样本不可得）、以及 §9.7 沿用项。
+
+---
+
+# 12. 生态迁移收口（T-34~T-37 · 方案 A · 2026-10-24）
+
+| 项 | 结果 |
+|---|---|
+| GitHub 仓 | **https://github.com/yangyizhu8/dsh-deepseek-fetch**（PUBLIC，default=main） |
+| 提交 | `ec14502`（首笔 187 文件）+ `05d1340`（README 安装补构建环节）；本地 HEAD == origin/main |
+| 本机落位 | `D:\dsh-sync\packages\dsh-deepseek-fetch`（与 19 个 @dsh-external 包同位） |
+| 宿主 link | `link:D:/dsh-sync/packages/dsh-deepseek-fetch/bundle`；junction 已重建并指向克隆 |
+| **加载源证明** | **反向探针**：移走克隆 `bundle/lib` → `dev_reload_package` **失败**（旧路径 lib 完好）→ 说明运行的是克隆目录；恢复后 `[active]` |
+| 克隆自足性 | `build.sh` 0 · `verify` **23 项 PASS** · 准入 1/1 · `git status` 干净 |
+| 旧副本 | 保留 `C:\project-study\dsh-deepseek-fetch`（唯一编辑源 + 回退点，verify 仍 23 项 PASS） |
+| 回滚点 | ① `~/.dsh/profiles/web/package.json.bak-link-repoint` ② 旧工作副本 |
+| 卸载即净 | **未在生产宿主执行 uninject**（会写 disabled patch + 删 junction，需改 profile 才能恢复，风险高于收益）；改为等价证据：`apply` 仅 `ctx.effect(tools.register)`、清单中恰 1 条 entry、重载 ×3 无 duplicate、无插件路由 |
+| 同步规则 | 单向：工作副本 → 提交 → 克隆 `git pull`；克隆不再手工编辑 |
+| 关键发现 | `bundle/.gitignore` 含 `lib/` → **克隆后必须先跑 `build.sh`**（已写入 README 安装步骤与警告） |
+| 迁移期铁律遵守 | **未触碰** `D:\deepseek-harness\plugins` 合并仓（12 处他人在途改动完好）；**未删**旧工作副本 |
+
+**迁移后真实调用**（两通道）：`render:true` → 素材包 1 张（去重 0、`sha1+phash`、settle 700/预算 90000）；单页 → 916 字符。
+证据全文：`evidence/p5-migration.md`。
