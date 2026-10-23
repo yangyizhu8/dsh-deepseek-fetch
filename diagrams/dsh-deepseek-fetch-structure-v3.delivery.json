@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "23cc39b1-e0ab-4293-a2de-516c465b2a6b",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\project-study\\dsh-deepseek-fetch\\diagrams\\structure-v3.candidate.json",
+  "output": "C:\\project-study\\dsh-deepseek-fetch\\diagrams\\dsh-deepseek-fetch-structure-v3.html",
+  "specification": {
+    "sha256": "7fdbaca0b00f89f8fa13159c91a0da1c9866b838457693c3d90aeceb5926fa35",
+    "bytes": 5007
+  },
+  "artifact": {
+    "sha256": "be9c8bfe353466cba01979d1fdfeaf975b144c392e941b939ffb62f4287d9a4e",
+    "bytes": 767889
+  }
+}

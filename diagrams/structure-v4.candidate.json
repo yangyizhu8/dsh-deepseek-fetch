@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-deepseek-fetch v0.3 结构图（P3 第四批：参数化等待 + 感知哈希去重）",
+    "subtitle": "生成时点 2026-10-23 00:30 · 基线 Plugin-Spec v0.5 FR-13/FR-14 · 插件 v0.3.0（未建仓，无 commit）",
+    "output": "dsh-deepseek-fetch-structure-v4.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1240,
+      560
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "用户",
+      "sublabel": "给网址 + render_settle_ms",
+      "pos": [
+        20,
+        40
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "frontend",
+      "label": "Agent 会话",
+      "sublabel": "调用 deepseek_fetch",
+      "pos": [
+        190,
+        40
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "tool",
+      "type": "backend",
+      "label": "deepseek_fetch",
+      "sublabel": "10 键参数（+render_settle_ms）",
+      "pos": [
+        370,
+        40
+      ],
+      "size": [
+        180,
+        70
+      ]
+    },
+    {
+      "id": "api",
+      "type": "cloud",
+      "label": "DeepSeek Fetch API",
+      "sublabel": "POST /v1/tools/fetch",
+      "pos": [
+        1030,
+        40
+      ],
+      "size": [
+        185,
+        64
+      ]
+    },
+    {
+      "id": "budget",
+      "type": "backend",
+      "label": "① 预算联动器",
+      "sublabel": "settle × shots → 实际总预算",
+      "pos": [
+        360,
+        175
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "arbiter",
+      "type": "backend",
+      "label": "② 择源器",
+      "sublabel": "auto / api / render 择源",
+      "pos": [
+        570,
+        175
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "edge",
+      "type": "backend",
+      "label": "③ 渲染器",
+      "sublabel": "无头 Edge + CDP",
+      "pos": [
+        775,
+        175
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "scroller",
+      "type": "backend",
+      "label": "④ 滚动定位",
+      "sublabel": "最大可滚元素",
+      "pos": [
+        970,
+        175
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "shots",
+      "type": "backend",
+      "label": "⑤ 截图器",
+      "sublabel": "按屏高切屏",
+      "pos": [
+        360,
+        315
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "dedup",
+      "type": "backend",
+      "label": "⑥ 感知哈希去重器",
+      "sublabel": "sha1 → dHash → MAD≤1.5",
+      "pos": [
+        570,
+        315
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "bundle",
+      "type": "backend",
+      "label": "⑦ 素材包",
+      "sublabel": "md + shots/ + manifest",
+      "pos": [
+        800,
+        315
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "fs",
+      "type": "database",
+      "label": "本地文件系统",
+      "sublabel": "输出目录",
+      "pos": [
+        1010,
+        315
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "vis",
+      "type": "external",
+      "label": "Agent 视觉合并",
+      "sublabel": "读图转文字 → 终稿",
+      "pos": [
+        800,
+        455
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "HOST 组合 · bundle entry v0.3（无 client 半 / 无 service / 无定时器）",
+      "wraps": [
+        "tool",
+        "budget",
+        "arbiter",
+        "edge",
+        "scroller",
+        "shots",
+        "dedup",
+        "bundle",
+        "fs"
+      ],
+      "pad": 26
+    },
+    {
+      "kind": "security-group",
+      "label": "Edge 进程边界：临时 profile · 随机端口 · 必杀",
+      "wraps": [
+        "edge",
+        "scroller"
+      ],
+      "pad": 20
+    }
+  ],
+  "connections": [
+    {
+      "id": "u-a",
+      "from": "user",
+      "to": "agent",
+      "label": "网址",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a-t",
+      "from": "agent",
+      "to": "tool",
+      "variant": "emphasis"
+    },
+    {
+      "id": "t-b",
+      "from": "tool",
+      "to": "budget",
+      "label": "入参",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "b-ar",
+      "from": "budget",
+      "to": "arbiter"
+    },
+    {
+      "id": "ar-api",
+      "from": "arbiter",
+      "to": "api",
+      "label": "文字·api 通道",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "ar-edge",
+      "from": "arbiter",
+      "to": "edge"
+    },
+    {
+      "id": "edge-sc",
+      "from": "edge",
+      "to": "scroller",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sc-sh",
+      "from": "scroller",
+      "to": "shots",
+      "label": "分屏",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "sh-dd",
+      "from": "shots",
+      "to": "dedup",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dd-b",
+      "from": "dedup",
+      "to": "bundle"
+    },
+    {
+      "id": "b-fs",
+      "from": "bundle",
+      "to": "fs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "b-vis",
+      "from": "bundle",
+      "to": "vis",
+      "label": "清单 + 截图",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ]
+}

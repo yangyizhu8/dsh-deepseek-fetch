@@ -1,0 +1,2 @@
+name: DeepSeek 网页抓取（deepseek_fetch）
+description: 把一个网址交给 DeepSeek 官方 Fetch API 抓取，把返回的 Markdown 正文原样规范化后落盘到指定目录（文件即正文，无任何前置元信息），并返回文件路径与元信息；P1 支持同域子页批量（合并为单个大 md）；P2 支持 render=true 素材通道（渲染正文 + 跨页分屏截图 + manifest，供 agent 做图文合并）。

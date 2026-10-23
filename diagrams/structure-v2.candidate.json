@@ -1,0 +1,365 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-deepseek-fetch v0.2 结构图（P1 合集路径新增）",
+    "subtitle": "生成时点 2026-10-21 04:08 · 基线 Plugin-Spec v0.3 FR-11 · 插件 v0.2.0（未建仓，无 commit）",
+    "output": "dsh-deepseek-fetch-structure-v2.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1240,
+      700
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "用户",
+      "sublabel": "自然语言给网址",
+      "pos": [
+        20,
+        60
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "frontend",
+      "label": "Agent 会话",
+      "sublabel": "调用 deepseek_fetch",
+      "pos": [
+        200,
+        60
+      ],
+      "size": [
+        140,
+        64
+      ]
+    },
+    {
+      "id": "tool",
+      "type": "backend",
+      "label": "deepseek_fetch",
+      "sublabel": "children 开关",
+      "pos": [
+        390,
+        60
+      ],
+      "size": [
+        170,
+        70
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "backend",
+      "label": "① 校验层",
+      "sublabel": "URL / 参数 / 凭据",
+      "pos": [
+        390,
+        190
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "discover",
+      "type": "backend",
+      "label": "发现层（P1）",
+      "sublabel": "抓 HTML · 抽 <a href>",
+      "pos": [
+        600,
+        190
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "queue",
+      "type": "backend",
+      "label": "BFS 队列（P1）",
+      "sublabel": "同 host · 深度 2 · 30 页",
+      "pos": [
+        820,
+        190
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "robots",
+      "type": "cloud",
+      "label": "robots.txt",
+      "sublabel": "Disallow 命中即跳过",
+      "pos": [
+        1030,
+        190
+      ],
+      "size": [
+        185,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "cloud",
+      "label": "DeepSeek Fetch API",
+      "sublabel": "POST /v1/tools/fetch",
+      "pos": [
+        1030,
+        60
+      ],
+      "size": [
+        185,
+        64
+      ]
+    },
+    {
+      "id": "key",
+      "type": "security",
+      "label": "DEEPSEEK_API_KEY",
+      "sublabel": "用户级环境变量",
+      "pos": [
+        1030,
+        320
+      ],
+      "size": [
+        185,
+        64
+      ]
+    },
+    {
+      "id": "client",
+      "type": "backend",
+      "label": "② 调用层",
+      "sublabel": "逐页 fetch + 超时/重试",
+      "pos": [
+        390,
+        320
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "clean",
+      "type": "backend",
+      "label": "③ 清洗层",
+      "sublabel": "剥离转义（围栏/行内保护）",
+      "pos": [
+        390,
+        450
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "merge",
+      "type": "backend",
+      "label": "合并器（P1）",
+      "sublabel": "层级 · 来源行 · 失败清单",
+      "pos": [
+        640,
+        450
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "naming",
+      "type": "backend",
+      "label": "④ 命名层",
+      "sublabel": "根标题 + “-合集”",
+      "pos": [
+        390,
+        570
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "writer",
+      "type": "backend",
+      "label": "⑤ 落盘层",
+      "sublabel": "排他占名 · 无 BOM",
+      "pos": [
+        600,
+        570
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "fs",
+      "type": "database",
+      "label": "本地文件系统",
+      "sublabel": "C:\\deepseek网页抓取\\*.md",
+      "pos": [
+        860,
+        570
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "HOST 组合 · bundle entry（P1 同一插件内，不新增 service）",
+      "wraps": [
+        "tool",
+        "guard",
+        "discover",
+        "queue",
+        "client",
+        "clean",
+        "merge",
+        "naming",
+        "writer",
+        "fs"
+      ],
+      "pad": 26
+    },
+    {
+      "kind": "security-group",
+      "label": "凭据只进内存",
+      "wraps": [
+        "key"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "u-a",
+      "from": "user",
+      "to": "agent",
+      "label": "网址",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a-t",
+      "from": "agent",
+      "to": "tool",
+      "variant": "emphasis"
+    },
+    {
+      "id": "t-g",
+      "from": "tool",
+      "to": "guard",
+      "label": "入参",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "g-d",
+      "from": "guard",
+      "to": "discover",
+      "variant": "dashed"
+    },
+    {
+      "id": "d-r",
+      "from": "discover",
+      "to": "robots",
+      "label": "查询规则"
+    },
+    {
+      "id": "d-q",
+      "from": "discover",
+      "to": "queue",
+      "variant": "emphasis"
+    },
+    {
+      "id": "q-c",
+      "from": "queue",
+      "to": "client",
+      "label": "逐页 URL",
+      "fromSide": "bottom",
+      "toSide": "right"
+    },
+    {
+      "id": "g-c",
+      "from": "guard",
+      "to": "client",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "c-api",
+      "from": "client",
+      "to": "api",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "k-c",
+      "from": "key",
+      "to": "client",
+      "label": "Bearer（仅内存）",
+      "variant": "dashed"
+    },
+    {
+      "id": "c-cl",
+      "from": "client",
+      "to": "clean",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "cl-m",
+      "from": "clean",
+      "to": "merge",
+      "label": "逐页正文",
+      "variant": "dashed"
+    },
+    {
+      "id": "m-n",
+      "from": "merge",
+      "to": "naming",
+      "label": "合集正文",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "cl-n",
+      "from": "clean",
+      "to": "naming",
+      "label": "单页",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "n-w",
+      "from": "naming",
+      "to": "writer"
+    },
+    {
+      "id": "w-fs",
+      "from": "writer",
+      "to": "fs",
+      "label": "写入 .md",
+      "variant": "emphasis"
+    }
+  ]
+}

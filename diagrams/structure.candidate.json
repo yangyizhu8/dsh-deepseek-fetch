@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-deepseek-fetch 结构图（插件 / 挂载点 / 边界 / 依赖边）",
+    "subtitle": "生成时点 2026-10-21 02:05 · 基线 Plugin-Spec v0.3 · 插件 v0.1.0（尚未建仓，无 commit）",
+    "output": "dsh-deepseek-fetch-structure.html",
+    "quality_profile": "showcase",
+    "viewBox": [1240, 560]
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "用户", "sublabel": "自然语言给网址", "pos": [20, 40], "size": [140, 64] },
+    { "id": "agent", "type": "frontend", "label": "Agent 会话", "sublabel": "LLM 循环调用工具", "pos": [200, 40], "size": [150, 64] },
+    { "id": "tool", "type": "backend", "label": "deepseek_fetch", "sublabel": "工具契约入口", "pos": [400, 40], "size": [180, 70] },
+    { "id": "guard", "type": "backend", "label": "① 校验层", "sublabel": "URL / 长度 / 凭证", "pos": [400, 180], "size": [180, 64] },
+    { "id": "client", "type": "backend", "label": "② 调用层", "sublabel": "fetch + 超时 + 重试 1", "pos": [640, 180], "size": [180, 64] },
+    { "id": "clean", "type": "backend", "label": "③ 清洗层", "sublabel": "剥离反斜杠转义", "pos": [400, 310], "size": [180, 64] },
+    { "id": "naming", "type": "backend", "label": "④ 命名层", "sublabel": "标题 slug + 冲突序号", "pos": [640, 310], "size": [170, 64] },
+    { "id": "writer", "type": "backend", "label": "⑤ 落盘层", "sublabel": "mkdir + 原子写（无 BOM）", "pos": [880, 310], "size": [170, 64] },
+    { "id": "config", "type": "backend", "label": "Config", "sublabel": "schemastery 校验", "pos": [400, 430], "size": [180, 64] },
+    { "id": "fs", "type": "database", "label": "本地文件系统", "sublabel": "C:\\deepseek网页抓取\\*.md", "pos": [880, 430], "size": [170, 64] },
+    { "id": "api", "type": "cloud", "label": "DeepSeek Fetch API", "sublabel": "POST /v1/tools/fetch", "pos": [1000, 40], "size": [190, 64] },
+    { "id": "key", "type": "security", "label": "DEEPSEEK_API_KEY", "sublabel": "用户级环境变量", "pos": [1000, 170], "size": [190, 64] }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "HOST 组合面 · bundle entry（无 client/service/timer）",
+      "wraps": ["tool", "guard", "client", "clean", "naming", "writer", "config", "fs"],
+      "pad": 26
+    },
+    {
+      "kind": "security-group",
+      "label": "凭据边界：只进内存，不进文件 / 不写日志 / 不回显",
+      "wraps": ["key"],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    { "id": "u-a", "from": "user", "to": "agent", "label": "网址", "variant": "emphasis" },
+    { "id": "a-t", "from": "agent", "to": "tool", "variant": "emphasis" },
+    { "id": "t-g", "from": "tool", "to": "guard", "label": "入参", "fromSide": "bottom", "toSide": "top" },
+    { "id": "g-c", "from": "guard", "to": "client", "variant": "emphasis" },
+    { "id": "c-api", "from": "client", "to": "api", "label": "HTTPS 请求", "variant": "emphasis" },
+    { "id": "api-c", "from": "api", "to": "client", "label": "200 {title, content}", "variant": "dashed" },
+    { "id": "c-cl", "from": "client", "to": "clean", "label": "content", "fromSide": "left", "toSide": "right" },
+    { "id": "cl-n", "from": "clean", "to": "naming", "label": "纯净正文" },
+    { "id": "n-w", "from": "naming", "to": "writer", "label": "绝对路径" },
+    { "id": "w-fs", "from": "writer", "to": "fs", "label": "写入 .md", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "k-c", "from": "key", "to": "client", "label": "Bearer（仅内存）", "variant": "dashed" },
+    { "id": "cfg-t", "from": "config", "to": "tool", "label": "endpoint / 默认目录 / 超时", "variant": "dashed", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "文件即正文（v0.3 裁决）", "items": ["落盘内容 = 接口 content 本身", "无 front matter / 来源行 / 时间头", "元信息只走工具返回值"] },
+    { "dot": "amber", "title": "失败不落盘", "items": ["E_INVALID_URL / E_AUTH / E_FETCH_FAILED", "E_RATE_LIMIT / E_UPSTREAM / E_EMPTY_CONTENT", "先写临时文件再原子改名"] },
+    { "dot": "violet", "title": "P1 预留（不在 P0 schema）", "items": ["children / max_depth / max_pages", "BFS 走独立 HTML 通道", "产物合并为单个大 md"] }
+  ]
+}

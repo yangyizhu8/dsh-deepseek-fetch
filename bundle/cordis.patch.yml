@@ -1,0 +1,6 @@
+# @dsh-external/dsh-deepseek-fetch bundle patch：DeepSeek 网页抓取工具包（工具 deepseek_fetch）。
+# Inserted into the web profile by its link dependency declaration.
+# config 全部使用插件 schema 内置默认值，不在此覆盖。
+- insert:
+    - id: deepseek-fetch
+      name: '@dsh-external/dsh-deepseek-fetch'

@@ -1,0 +1,6 @@
+# preset-dsh-deepseek-fetch：DeepSeek 网页抓取（deepseek_fetch）工具型 bundle 预设。
+# 仅承载默认配置：工具行不写 config——config 全部使用插件 schema 内置默认值
+# （与 bundle/cordis.patch.yml 同策略）；无 service 行 → 无需 isolate realm group
+# （Plugin-Design §2.2 结论：单条 host 侧 entry，不新增预设 service 行）。
+- id: deepseek-fetch
+  name: '@dsh-external/dsh-deepseek-fetch'

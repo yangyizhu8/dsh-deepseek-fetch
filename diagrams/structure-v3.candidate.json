@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-deepseek-fetch v0.3 结构图（P2 渲染素材通道）",
+    "subtitle": "生成时点 2026-10-22 01:25 · 基线 Plugin-Spec v0.4 FR-12 · 插件 v0.3.0（未建仓，无 commit）",
+    "output": "dsh-deepseek-fetch-structure-v3.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1240,
+      560
+    ]
+  },
+  "components": [
+    {
+      "id": "user",
+      "type": "external",
+      "label": "用户",
+      "sublabel": "自然语言给网址",
+      "pos": [
+        20,
+        40
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "frontend",
+      "label": "Agent 会话",
+      "sublabel": "调用 deepseek_fetch",
+      "pos": [
+        190,
+        40
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "tool",
+      "type": "backend",
+      "label": "deepseek_fetch",
+      "sublabel": "render 开关",
+      "pos": [
+        370,
+        40
+      ],
+      "size": [
+        180,
+        70
+      ]
+    },
+    {
+      "id": "api",
+      "type": "cloud",
+      "label": "DeepSeek Fetch API",
+      "sublabel": "POST /v1/tools/fetch",
+      "pos": [
+        1030,
+        40
+      ],
+      "size": [
+        185,
+        64
+      ]
+    },
+    {
+      "id": "arbiter",
+      "type": "backend",
+      "label": "① 择源器",
+      "sublabel": "auto/api/render",
+      "pos": [
+        360,
+        180
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "edge",
+      "type": "backend",
+      "label": "② 渲染器",
+      "sublabel": "无头 Edge + CDP",
+      "pos": [
+        570,
+        180
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "scroller",
+      "type": "backend",
+      "label": "③ 滚动定位",
+      "sublabel": "最大可滚元素",
+      "pos": [
+        775,
+        180
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "shots",
+      "type": "backend",
+      "label": "④ 截图器",
+      "sublabel": "按屏高切图 + 去重",
+      "pos": [
+        1010,
+        180
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "bundle",
+      "type": "backend",
+      "label": "⑤ 素材包",
+      "sublabel": "md + shots/ + manifest",
+      "pos": [
+        560,
+        330
+      ],
+      "size": [
+        175,
+        64
+      ]
+    },
+    {
+      "id": "fs",
+      "type": "database",
+      "label": "本地文件系统",
+      "sublabel": "输出目录",
+      "pos": [
+        800,
+        330
+      ],
+      "size": [
+        165,
+        64
+      ]
+    },
+    {
+      "id": "vis",
+      "type": "external",
+      "label": "Agent 视觉合并",
+      "sublabel": "读图转文字 → 终稿",
+      "pos": [
+        1000,
+        330
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "HOST 组合 · bundle entry v0.3（无 client 半 / 无 service / 无定时器）",
+      "wraps": [
+        "tool",
+        "arbiter",
+        "edge",
+        "scroller",
+        "shots",
+        "bundle",
+        "fs"
+      ],
+      "pad": 26
+    },
+    {
+      "kind": "security-group",
+      "label": "Edge 进程边界：临时 profile · 随机端口 · 必杀",
+      "wraps": [
+        "edge",
+        "scroller",
+        "shots"
+      ],
+      "pad": 20
+    }
+  ],
+  "connections": [
+    {
+      "id": "u-a",
+      "from": "user",
+      "to": "agent",
+      "label": "网址",
+      "variant": "emphasis"
+    },
+    {
+      "id": "a-t",
+      "from": "agent",
+      "to": "tool",
+      "variant": "emphasis"
+    },
+    {
+      "id": "t-ar",
+      "from": "tool",
+      "to": "arbiter",
+      "label": "入参",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "ar-api",
+      "from": "arbiter",
+      "to": "api",
+      "label": "文字·api 通道",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ar-edge",
+      "from": "arbiter",
+      "to": "edge",
+      "label": "文字·render 通道"
+    },
+    {
+      "id": "edge-sc",
+      "from": "edge",
+      "to": "scroller",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sc-sh",
+      "from": "scroller",
+      "to": "shots",
+      "label": "滚动定位"
+    },
+    {
+      "id": "edge-b",
+      "from": "edge",
+      "to": "bundle",
+      "label": "innerText",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "sh-b",
+      "from": "shots",
+      "to": "bundle",
+      "label": "PNG 分屏",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "b-fs",
+      "from": "bundle",
+      "to": "fs",
+      "label": "写入素材包",
+      "variant": "emphasis"
+    },
+    {
+      "id": "b-vis",
+      "from": "bundle",
+      "to": "vis",
+      "label": "清单 + 截图",
+      "fromSide": "bottom",
+      "toSide": "bottom"
+    }
+  ]
+}

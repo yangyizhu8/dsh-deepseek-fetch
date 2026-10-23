@@ -1,0 +1,24 @@
+# 依赖与构建残留
+node_modules/
+**/node_modules/
+*.bak
+*.bak-*
+_bak*
+*_bak.*
+
+# 运行时产物
+.zcode/
+*.log
+regress/
+
+# 临时探针产物
+workorders/.edge*/
+workorders/strip-frames/
+workorders/*.png
+workorders/*.txt
+workorders/*.html
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
