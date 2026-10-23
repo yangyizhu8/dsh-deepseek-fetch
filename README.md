@@ -76,12 +76,18 @@
 # 1) 克隆到本机
 git clone https://github.com/yangyizhu8/dsh-deepseek-fetch.git D:/dsh-sync/packages/dsh-deepseek-fetch
 
-# 2) 在 profile（本机为 ~/.dsh/profiles/web/package.json）里声明 link 依赖
+# 2) 构建（lib/ 是构建产物、不入库；此步会链接 peer 依赖并编译）
+cd D:/dsh-sync/packages/dsh-deepseek-fetch/bundle
+DSH_CHECKOUT=/path/to/deepseek-harness bash scripts/build.sh
+
+# 3) 在 profile（本机为 ~/.dsh/profiles/web/package.json）里声明 link 依赖
 #    dependencies:        "@dsh-external/dsh-deepseek-fetch": "link:D:/dsh-sync/packages/dsh-deepseek-fetch/bundle"
 #    dsh.profile.bundles: 追加 "@dsh-external/dsh-deepseek-fetch"
 
-# 3) 重启 DSH（或运行时注入）
+# 4) 重启 DSH（或运行时注入）
 ```
+
+> **注意**：`bundle/lib/`、`bundle/node_modules/` 均为构建产物、由 `.gitignore` 排除，**必须**先跑第 2 步，否则 `link:` 装载会找不到入口。
 
 **依赖**：DSH 侧 `@deepseek-ai/dsh-tools` / `cordis` / `schemastery`（peer）；**无第三方 npm 依赖**（PNG 解码走 Node 内置 `zlib`）。渲染通道需 Windows + Microsoft Edge。
 
